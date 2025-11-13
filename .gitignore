@@ -1,0 +1,138 @@
+# =========================================
+# 🐍 Python & Django .gitignore Template
+# =========================================
+
+# --- Python bytecode ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Django stuff ---
+*.log
+*.pot
+*.pyc
+*.mo
+*.db
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static_root/
+static_cdn/
+local_settings.py
+
+# --- Environment files ---
+.env
+*.env
+.env.*
+!example.env
+
+# --- Virtual environment ---
+venv/
+env/
+ENV/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+*.swp
+*~
+.project
+.pydevproject
+.settings/
+.DS_Store
+Thumbs.db
+
+# --- Unit test / coverage reports ---
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+pytest_cache/
+test-results/
+junit.xml
+
+# --- Migrations (optional, if auto-generated) ---
+# Uncomment next line only if you want to exclude all migrations (not recommended for production)
+# */migrations/*
+
+# --- MyPy, Pyre & other type checkers ---
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# --- Jupyter Notebook checkpoints ---
+.ipynb_checkpoints
+
+# --- Build / packaging ---
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Logs & temp files ---
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
+
+# --- Local server or deployment ---
+*.pid
+celerybeat-schedule
+celerybeat.pid
+*.seed
+*.pid.lock
+uwsgi.ini
+
+# --- Media uploads ---
+uploads/
+media_root/
+
+# --- Node modules (if using React/Vue frontend) ---
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# --- Docker ---
+*.dockerfile
+docker-compose.override.yml
+*.env.docker
+docker/
+__docker__/
+.dockerignore
+
+# --- PyCharm specific ---
+.idea/
+*.iml
+
+# --- System files ---
+.DS_Store
+Thumbs.db
+
+# =========================================
+# ✅ End of .gitignore
+# =========================================
