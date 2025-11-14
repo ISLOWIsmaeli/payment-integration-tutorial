@@ -5,6 +5,14 @@ from django.urls import reverse
 from django.contrib import messages
 from .paystack import checkout
 from projectsApp.models import Project
+from .models import DonationHistory
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+import hmac
+import hashlib
+from django.conf import settings
+import json
+from django.contrib.auth.models import User
 
 # Create your views here.
 def donation(request, donation_id):
@@ -62,3 +70,35 @@ def create_paystack_checkout_session(request, project_id):
     else:
         messages.error(request, check_out_session_url_or_error_message)
         return redirect('donation')
+
+@csrf_exempt
+def paystack_webhook(request):
+    secret = settings.PAYSTACK_SECRET_KEY
+    request_body = request.body
+
+    hash = hmac.new(secret.encode('utf-8'), request_body, hashlib.sha512).hexdigest()
+    
+    if hash == request.META.get('HTTP_X_PAYSTACK_SIGNATURE'):
+        webhook_post_data = json.loads(request_body)
+        print(webhook_post_data)
+
+        if webhook_post_data["event"] == "charge.success":
+            metadata = webhook_post_data["data"]["metadata"]
+
+            product_id = metadata["product_id"]
+            user_id = metadata["user_id"]
+            purchase_id = metadata["purchase_id"]
+
+            user = User.objects.get(id=user_id)
+
+            DonationHistory.objects.create(
+                donation_id = purchase_id,
+                user = user,
+                donation_status = True,
+                project = Project.objects.get(id=product_id)
+            )
+
+            #send email to user on successful payment
+            # send_payment_success_email(user.email, product_id)
+
+    return HttpResponse(status=200)
