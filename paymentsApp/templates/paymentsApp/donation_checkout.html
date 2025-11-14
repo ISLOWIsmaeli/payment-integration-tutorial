@@ -15,7 +15,7 @@
             <p>{{project.name}}</p>
             <p>Donation: KSH {{project.donation}}</p>
             <p>Description: {{project.description}}</p>
-            <a href="{% url 'payments-home' project.id %}"><button>Donate</button></a>
+            <a href="{% url 'donation-checkout' project.id %}"><button>Donate</button></a>
         </div>  
 </div>
 
