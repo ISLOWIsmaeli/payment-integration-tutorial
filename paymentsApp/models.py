@@ -1,3 +1,12 @@
 from django.db import models
+import uuid 
+from projectsApp.models import Project
+from django.contrib.auth.models import User
 
-# Create your models here.
+class DonationHistory(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    donation_id = models.CharField(max_length=225, default=uuid.uuid4())
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    donation_status = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now_add=True)

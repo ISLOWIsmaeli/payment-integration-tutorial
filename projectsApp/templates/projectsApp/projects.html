@@ -1,1 +1,19 @@
 {% extends "base.html" %}
+{% block title %}Projects Page{% endblock title %}
+{% block content %}
+<h1>Projects</h1>
+    <div class="project-container">
+        {% for i in projects %}
+            <div class="projects">
+                <a href="{% url 'donation' i.id %}">
+                    <img class="img" src="{{i.image}}" alt="">
+                </a><br>
+                <a href="{% url 'donation' i.id %}">{{i.name}}</a>
+                <p>{{i.description}}</p>
+                <p>KSH {{i.donation}}</p>
+                
+            </div>
+            <br>
+        {% endfor %}
+    </div>
+{% endblock content %}

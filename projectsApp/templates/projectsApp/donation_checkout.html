@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Donations Checkout{% endblock title %}
+{% block content %}
+<h1>Donate to project {{ project.name }}</h1>
+{% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <p style="color:firebrick;">{{message}}</p>
+            {% endif %}
+        {% endfor %}
+{% endif %} 
+<div class="project-container">
+        <div class="projects">
+            <img class="img" src="{{project.image}}" alt="">
+            <p>{{project.name}}</p>
+            <p>Donation: KSH {{project.donation}}</p>
+            <p>Description: {{project.description}}</p>
+            <a href="{% url 'payments-home' project.id %}"><button>Donate</button></a>
+        </div>  
+</div>
+
+
+<!-- Link to the payment page. Pass the project id as a GET param so payment view can pick it up. -->
+{% comment %} <a class="btn" href="{% url 'payments-home' %}?project={{ project.id }}">Proceed to Payment</a> {% endcomment %}
+
+{% endblock content %}
