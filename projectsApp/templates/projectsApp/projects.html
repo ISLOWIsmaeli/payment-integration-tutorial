@@ -9,9 +9,7 @@
                     <img class="img" src="{{i.image}}" alt="">
                 </a><br>
                 <a href="{% url 'donation' i.id %}">{{i.name}}</a>
-                <p>{{i.description}}</p>
-                <p>KSH {{i.donation}}</p>
-                
+                <p>{{i.description}}</p>            
             </div>
             <br>
         {% endfor %}
