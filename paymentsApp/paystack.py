@@ -14,6 +14,8 @@ def checkout(payload):
         data=json.dumps(payload)
     )
     response_data = response.json() 
+    # print("I need to know how the response looks like:", response_data)
+    # print("////////////////////////////////////////////////////////")
 
     if response_data.get('status') == True:
         return True, response_data['data']['authorization_url']

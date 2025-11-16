@@ -6,8 +6,12 @@
         <div class="projects">
             <img class="img" src="{{project.image}}" alt="">
             <p>{{project.name}}</p>
-            <p>Price: KSH {{project.donation}}</p>
             <p>Description: {{project.description}}</p>
+            {% if amount %}
+                <p>Amount Paid: KSH {{ amount }}</p>
+            {% else %}
+                <p>Amount Paid: KSH Not found</p>
+            {% endif %}
         </div>  
     </div>
 {% endblock content %}
