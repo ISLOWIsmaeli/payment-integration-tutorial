@@ -105,7 +105,10 @@ def create_paystack_checkout_session(request, project_id):
         },
         "label": f"Checkout For {project.name}"
         }
-        
+        print("The checkout data payload sent to paystack is as follows:")
+        print(checkout_data)
+        print("End of paystack checkout data sent")
+
         status, check_out_session_url_or_error_message = checkout(checkout_data)
 
         if status:
@@ -121,14 +124,17 @@ def paystack_webhook(request):
     secret = settings.PAYSTACK_SECRET_KEY
     request_body = request.body
     
-    # print("Webhook received:", request_body)
-    # print("This is the request metadata: ",request_meta)
+    print("Webhook (raw request_body) from Paystack")
+    print(request_body)
+    print("End of raw request_body from Paystack")
 
     hash = hmac.new(secret.encode('utf-8'), request_body, hashlib.sha512).hexdigest()
     
     if hash == request.META.get('HTTP_X_PAYSTACK_SIGNATURE'):
         webhook_post_data = json.loads(request_body)
+        print("Webhook data after conversion to json")
         print(webhook_post_data)
+        print("End of webhook data after conversion to json")
 
         if webhook_post_data["event"] == "charge.success":
             metadata = webhook_post_data["data"]["metadata"]
