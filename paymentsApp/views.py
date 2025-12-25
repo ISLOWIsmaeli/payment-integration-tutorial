@@ -27,27 +27,28 @@ def donation(request, donation_id):
     return render(request, 'paymentsApp/donation_checkout.html', context)
 
 
-@login_required
 def payment_successful(request, project_id):
 
     project = Project.objects.get(id=project_id)
-    print(f"User: {request.user}, Project: {project}")
+    # print(f"User: {request.user}, Project: {project}")
     
     # Get the most recent successful donation for this user and project
     donation = DonationHistory.objects.filter(
-        user=request.user,
+        # user=request.user,
         project=project,
         donation_status=True
     ).order_by('-date').first()
     
     amount = donation.amount if donation else None
+    email = donation.email if donation else None
 
     return render(request, 'paymentsApp/payment_success.html', {
         'project': project,
+        'email' : email,
         'amount': amount
     })
 
-@login_required
+# hopping we wouldn't have to get a situation of payments failed in the mean time
 def payment_failed(request, project_id):
 
     project = Project.objects.get(id=project_id)
@@ -66,11 +67,12 @@ def payment_failed(request, project_id):
         'amount': amount
     })
 
-@login_required
+
 def create_paystack_checkout_session(request, project_id):
     project = Project.objects.get(id=project_id)
 
     if request.method == "POST":
+        email_text = request.POST.get("email")
         amount_text = request.POST.get("amount")
         try:
             amount = Decimal(amount_text)
@@ -92,7 +94,7 @@ def create_paystack_checkout_session(request, project_id):
         amount_in_kobo = int(amount * 100)
 
         checkout_data = {
-        "email": request.user.email,
+        "email": email_text,
         "amount": amount_in_kobo,  # in kobo 
         "currency": "KES",
         "channels": ["card", "bank_transfer", "bank", "ussd", "qr", "mobile_money"],
@@ -100,7 +102,7 @@ def create_paystack_checkout_session(request, project_id):
         "callback_url": callback_url,
         "metadata": {
             "product_id": project.id,
-            "user_id": request.user.id,
+            "user_email": email_text,
             "purchase_id": purchase_id,
         },
         "label": f"Checkout For {project.name}"
@@ -140,17 +142,17 @@ def paystack_webhook(request):
             metadata = webhook_post_data["data"]["metadata"]
             data = webhook_post_data["data"]
             product_id = metadata["product_id"]
-            user_id = metadata["user_id"]
+            user_id = metadata["user_email"]
             purchase_id = metadata["purchase_id"]
 
             amount_paid_kobo = data.get("amount")
             amount_paid = Decimal(amount_paid_kobo) / 100
 
-            user = User.objects.get(id=user_id)
+            # user = User.objects.get(id=user_id)
 
             DonationHistory.objects.create(
                 donation_id = purchase_id,
-                user = user,
+                email = user_id,
                 donation_status = True,
                 project = Project.objects.get(id=product_id),
                 amount = amount_paid

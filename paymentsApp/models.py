@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class DonationHistory(models.Model):
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    email = models.EmailField(max_length=254, default='noemail@example.com')
     donation_id = models.CharField(max_length=225, default=uuid.uuid4())
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)

@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Payment Success{% endblock title %}
 {% block content %}
-<h1>Payment Successful for project: {{project.name}}</h1>
+<h1>Payment Successful for project: {{project.name}}, Email Address: {{email}}</h1>
     <div class="project-container">
         <div class="projects">
-            <img class="img" src="{{project.image}}" alt="">
             <p>{{project.name}}</p>
             <p>Description: {{project.description}}</p>
             {% if amount %}
