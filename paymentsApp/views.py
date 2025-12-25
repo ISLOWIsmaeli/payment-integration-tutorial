@@ -26,7 +26,7 @@ def donation(request, donation_id):
 
     return render(request, 'paymentsApp/donation_checkout.html', context)
 
-###confirming pull request
+
 @login_required
 def payment_successful(request, project_id):
 

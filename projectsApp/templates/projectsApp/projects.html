@@ -5,9 +5,6 @@
     <div class="project-container">
         {% for i in projects %}
             <div class="projects">
-                <a href="{% url 'donation' i.id %}">
-                    <img class="img" src="{{i.image}}" alt="">
-                </a><br>
                 <a href="{% url 'donation' i.id %}">{{i.name}}</a>
                 <p>{{i.description}}</p>            
             </div>
