@@ -26,28 +26,39 @@ def donation(request, donation_id):
 
     return render(request, 'paymentsApp/donation_checkout.html', context)
 
-###confirming pull request
-@login_required
+
 def payment_successful(request, project_id):
 
     project = Project.objects.get(id=project_id)
-    print(f"User: {request.user}, Project: {project}")
+    # print(f"User: {request.user}, Project: {project}")
     
     # Get the most recent successful donation for this user and project
     donation = DonationHistory.objects.filter(
-        user=request.user,
+        # user=request.user,
         project=project,
         donation_status=True
     ).order_by('-date').first()
     
-    amount = donation.amount if donation else None
+    if donation:
+        amount = donation.amount
+        email = donation.email
+        first_name =donation.first_name
+        last_name = donation.last_name
+    else:
+        None
+
+    # amount = donation.amount if donation else None
+    # email = donation.email if donation else None
 
     return render(request, 'paymentsApp/payment_success.html', {
         'project': project,
-        'amount': amount
+        'email' : email,
+        'amount': amount,
+        'first_name': first_name,
+        'last_name': last_name
     })
 
-@login_required
+# hopping we wouldn't have to get a situation of payments failed in the mean time
 def payment_failed(request, project_id):
 
     project = Project.objects.get(id=project_id)
@@ -66,12 +77,15 @@ def payment_failed(request, project_id):
         'amount': amount
     })
 
-@login_required
+
 def create_paystack_checkout_session(request, project_id):
     project = Project.objects.get(id=project_id)
 
     if request.method == "POST":
+        email_text = request.POST.get("email")
         amount_text = request.POST.get("amount")
+        first_name_text = request.POST.get("first_name")
+        last_name_text = request.POST.get("last_name")
         try:
             amount = Decimal(amount_text)
         except (InvalidOperation, TypeError):
@@ -92,7 +106,7 @@ def create_paystack_checkout_session(request, project_id):
         amount_in_kobo = int(amount * 100)
 
         checkout_data = {
-        "email": request.user.email,
+        "email": email_text,
         "amount": amount_in_kobo,  # in kobo 
         "currency": "KES",
         "channels": ["card", "bank_transfer", "bank", "ussd", "qr", "mobile_money"],
@@ -100,12 +114,17 @@ def create_paystack_checkout_session(request, project_id):
         "callback_url": callback_url,
         "metadata": {
             "product_id": project.id,
-            "user_id": request.user.id,
+            "user_email": email_text,
             "purchase_id": purchase_id,
+            "first_name": first_name_text,
+            "last_name": last_name_text,
         },
         "label": f"Checkout For {project.name}"
         }
-        
+        print("The checkout data payload sent to paystack is as follows:")
+        print(checkout_data)
+        print("End of paystack checkout data sent")
+
         status, check_out_session_url_or_error_message = checkout(checkout_data)
 
         if status:
@@ -121,33 +140,40 @@ def paystack_webhook(request):
     secret = settings.PAYSTACK_SECRET_KEY
     request_body = request.body
     
-    # print("Webhook received:", request_body)
-    # print("This is the request metadata: ",request_meta)
+    print("Webhook (raw request_body) from Paystack")
+    print(request_body)
+    print("End of raw request_body from Paystack")
 
     hash = hmac.new(secret.encode('utf-8'), request_body, hashlib.sha512).hexdigest()
     
     if hash == request.META.get('HTTP_X_PAYSTACK_SIGNATURE'):
         webhook_post_data = json.loads(request_body)
+        print("Webhook data after conversion to json")
         print(webhook_post_data)
+        print("End of webhook data after conversion to json")
 
         if webhook_post_data["event"] == "charge.success":
             metadata = webhook_post_data["data"]["metadata"]
             data = webhook_post_data["data"]
             product_id = metadata["product_id"]
-            user_id = metadata["user_id"]
+            user_id = metadata["user_email"]
             purchase_id = metadata["purchase_id"]
+            first_name = metadata.get("first_name")
+            last_name = metadata.get("last_name")
 
             amount_paid_kobo = data.get("amount")
             amount_paid = Decimal(amount_paid_kobo) / 100
 
-            user = User.objects.get(id=user_id)
+            # user = User.objects.get(id=user_id)
 
             DonationHistory.objects.create(
                 donation_id = purchase_id,
-                user = user,
+                email = user_id,
                 donation_status = True,
                 project = Project.objects.get(id=product_id),
-                amount = amount_paid
+                amount = amount_paid,
+                first_name = first_name,
+                last_name = last_name
             )
 
             #send email to user on successful payment
