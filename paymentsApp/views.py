@@ -39,13 +39,23 @@ def payment_successful(request, project_id):
         donation_status=True
     ).order_by('-date').first()
     
-    amount = donation.amount if donation else None
-    email = donation.email if donation else None
+    if donation:
+        amount = donation.amount
+        email = donation.email
+        first_name =donation.first_name
+        last_name = donation.last_name
+    else:
+        None
+
+    # amount = donation.amount if donation else None
+    # email = donation.email if donation else None
 
     return render(request, 'paymentsApp/payment_success.html', {
         'project': project,
         'email' : email,
-        'amount': amount
+        'amount': amount,
+        'first_name': first_name,
+        'last_name': last_name
     })
 
 # hopping we wouldn't have to get a situation of payments failed in the mean time
@@ -74,6 +84,8 @@ def create_paystack_checkout_session(request, project_id):
     if request.method == "POST":
         email_text = request.POST.get("email")
         amount_text = request.POST.get("amount")
+        first_name_text = request.POST.get("first_name")
+        last_name_text = request.POST.get("last_name")
         try:
             amount = Decimal(amount_text)
         except (InvalidOperation, TypeError):
@@ -104,6 +116,8 @@ def create_paystack_checkout_session(request, project_id):
             "product_id": project.id,
             "user_email": email_text,
             "purchase_id": purchase_id,
+            "first_name": first_name_text,
+            "last_name": last_name_text,
         },
         "label": f"Checkout For {project.name}"
         }
@@ -144,6 +158,8 @@ def paystack_webhook(request):
             product_id = metadata["product_id"]
             user_id = metadata["user_email"]
             purchase_id = metadata["purchase_id"]
+            first_name = metadata.get("first_name")
+            last_name = metadata.get("last_name")
 
             amount_paid_kobo = data.get("amount")
             amount_paid = Decimal(amount_paid_kobo) / 100
@@ -155,7 +171,9 @@ def paystack_webhook(request):
                 email = user_id,
                 donation_status = True,
                 project = Project.objects.get(id=product_id),
-                amount = amount_paid
+                amount = amount_paid,
+                first_name = first_name,
+                last_name = last_name
             )
 
             #send email to user on successful payment

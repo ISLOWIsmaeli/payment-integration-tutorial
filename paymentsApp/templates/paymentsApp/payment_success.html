@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Payment Success{% endblock title %}
 {% block content %}
-<h1>Payment Successful for project: {{project.name}}, Email Address: {{email}}</h1>
+<h1>Payment Successful for project: {{project.name}}, please check your email {{email}} for the receipt.</h1>
+<h1>Thank you {{first_name}}, {{last_name}} for your generous contribution</h1>
     <div class="project-container">
         <div class="projects">
             <p>{{project.name}}</p>
